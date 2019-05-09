@@ -6,13 +6,13 @@
  * @flow
  */
 
-import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, View, Button, SafeAreaView} from 'react-native';
-import ProgressCircle from 'react-native-progress-circle'
+import React, { Component } from 'react';
+import { Button, SafeAreaView, StyleSheet, Text } from 'react-native';
+import ProgressCircle from 'react-native-progress-circle';
 import waait from 'waait';
 
 type Props = {};
-const normalMS = 500;
+const normalMS = 300;
 const minMS = 10;
 
 export default class App extends Component<Props> {
@@ -30,7 +30,7 @@ export default class App extends Component<Props> {
       await waait(4000);
       return Promise.resolve(true);
     },
-    timer: () => {},
+    timer: () => { },
     text: 'noItem',
     intervalMS: normalMS,
   }
@@ -44,30 +44,31 @@ export default class App extends Component<Props> {
 
   initItems = async () => {
     const { firstItem, secondItem, thirdItem } = this.state;
-    
+
     await firstItem();
-    this.setState({ text: 'firstItem'})
+    this.setState({ text: 'firstItem' })
     await secondItem();
-    this.setState({ text: 'secondItem'})
+    this.setState({ text: 'secondItem' })
     await thirdItem();
-    this.setState({ text: 'thirdItem'})
+    this.setState({ text: 'thirdItem' })
   }
 
-  handleTick = () => {
+  handleTick = async () => {
     const { percent, text, intervalMS } = this.state;
-    if(percent < 100 && text !== 'thirdItem'){
+    console.log(percent, text, intervalMS);
+    if (percent < 100 && text !== 'thirdItem' && intervalMS === normalMS) {
       this.setState(prevState => ({ percent: prevState.percent + 1 }))
     }
-    else if(percent < 100 && text === 'thirdItem' && intervalMS !== minMS){
+    else if (percent < 100 && text === 'thirdItem' && intervalMS !== minMS) {
       // this.handleClearInterval();
-      this.handleSetInterval(minMS);
+      await this.handleSetInterval(minMS);
     }
-    else if(percent < 100 && text === 'thirdItem' && intervalMS === minMS){
+    else if (percent < 100 && text === 'thirdItem' && intervalMS === minMS) {
       this.setState(prevState => ({ percent: prevState.percent + 1 }));
     }
-    else if(percent === 100 && text === 'thirdItem'){
-      this.handleClearInterval();
-      this.setState({ text: '..Completado..'});
+    else if (percent === 100 && text === 'thirdItem') {
+      await this.setState({ text: '..Completado..' });
+      await this.handleClearInterval();
     }
   }
 
@@ -75,7 +76,7 @@ export default class App extends Component<Props> {
     const { timer: forClear } = this.state;
     const identifier = forClear;
     const timer = setInterval(this.handleTick, ms);
-    this.setState({ timer, text: '' }, () => clearInterval(identifier)); // algo extraño pasa con esto
+    this.setState(prevState => ({ timer, intervalMS: ms }), () => clearInterval(identifier)); // algo extraño pasa con esto
   }
 
   handleClearInterval = () => {
@@ -86,17 +87,17 @@ export default class App extends Component<Props> {
   render() {
     const { percent, text } = this.state;
     return (
-      <SafeAreaView style={{ alignItems: 'center', justifyContent: 'center'}}>
-        <Button onPress={this.init} title="Iniciar"/>
+      <SafeAreaView style={{ alignItems: 'center', justifyContent: 'center' }}>
+        <Button onPress={this.init} title="Iniciar" />
         <ProgressCircle
-              percent={percent}
-              radius={150}
-              borderWidth={8}
-              color="#3399FF"
-              shadowColor="#999"
-              bgColor="#fff"
-          >
-            <Text style={{ fontSize: 18 }}>{percent}%</Text>
+          percent={percent}
+          radius={150}
+          borderWidth={8}
+          color="#3399FF"
+          shadowColor="#999"
+          bgColor="#fff"
+        >
+          <Text style={{ fontSize: 18 }}>{percent}%</Text>
         </ProgressCircle>
         <Text style={{ marginTop: 20, color: 'black' }}>{text}</Text>
       </SafeAreaView>
