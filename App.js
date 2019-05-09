@@ -28,7 +28,7 @@ export default class App extends Component<Props> {
     },
     thirdItem: async () => {
       await waait(4000);
-      return Promise.resolve(true);
+      return Promise.resolve(false);
     },
     timer: () => { },
     text: 'noItem',
@@ -45,29 +45,32 @@ export default class App extends Component<Props> {
   initItems = async () => {
     const { firstItem, secondItem, thirdItem } = this.state;
 
-    await firstItem();
-    this.setState({ text: 'firstItem' })
-    await secondItem();
-    this.setState({ text: 'secondItem' })
-    await thirdItem();
-    this.setState({ text: 'thirdItem' })
+    let response = await firstItem();
+    if (response)
+      this.setState({ text: 'firstItem' })
+    response = await secondItem();
+    if (response)
+      this.setState({ text: 'secondItem' })
+    response = await thirdItem();
+    if (response)
+      this.setState({ text: 'thirdItem' })
   }
 
   handleTick = async () => {
     const { percent, text, intervalMS } = this.state;
     console.log(percent, text, intervalMS);
-    if (percent < 100 && text !== 'thirdItem' && intervalMS === normalMS) {
+    if (percent < 99 && text !== 'thirdItem' && intervalMS === normalMS) {
       this.setState(prevState => ({ percent: prevState.percent + 1 }))
     }
-    else if (percent < 100 && text === 'thirdItem' && intervalMS !== minMS) {
+    else if (percent < 99 && text === 'thirdItem' && intervalMS !== minMS) {
       // this.handleClearInterval();
       await this.handleSetInterval(minMS);
     }
-    else if (percent < 100 && text === 'thirdItem' && intervalMS === minMS) {
+    else if (percent < 99 && text === 'thirdItem' && intervalMS === minMS) {
       this.setState(prevState => ({ percent: prevState.percent + 1 }));
     }
-    else if (percent === 100 && text === 'thirdItem') {
-      await this.setState({ text: '..Completado..' });
+    else if (percent === 99 && text === 'thirdItem') {
+      await this.setState({ percent: 100, text: '..Completado..' });
       await this.handleClearInterval();
     }
   }
@@ -100,6 +103,11 @@ export default class App extends Component<Props> {
           <Text style={{ fontSize: 18 }}>{percent}%</Text>
         </ProgressCircle>
         <Text style={{ marginTop: 20, color: 'black' }}>{text}</Text>
+        {
+          percent === 99
+            ? <Button onPress={() => this.setState({ text: 'thirdItem' })} title="Completar" />
+            : null
+        }
       </SafeAreaView>
     );
   }
