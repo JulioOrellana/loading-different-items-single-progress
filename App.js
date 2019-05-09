@@ -58,12 +58,10 @@ export default class App extends Component<Props> {
 
   handleTick = async () => {
     const { percent, text, intervalMS } = this.state;
-    console.log(percent, text, intervalMS);
     if (percent < 99 && text !== 'thirdItem' && intervalMS === normalMS) {
       this.setState(prevState => ({ percent: prevState.percent + 1 }))
     }
     else if (percent < 99 && text === 'thirdItem' && intervalMS !== minMS) {
-      // this.handleClearInterval();
       await this.handleSetInterval(minMS);
     }
     else if (percent < 99 && text === 'thirdItem' && intervalMS === minMS) {
@@ -103,11 +101,7 @@ export default class App extends Component<Props> {
           <Text style={{ fontSize: 18 }}>{percent}%</Text>
         </ProgressCircle>
         <Text style={{ marginTop: 20, color: 'black' }}>{text}</Text>
-        {
-          percent === 99
-            ? <Button onPress={() => this.setState({ text: 'thirdItem' })} title="Completar" />
-            : null
-        }
+        <Button onPress={() => this.setState({ text: 'thirdItem' })} title="Completar" />
       </SafeAreaView>
     );
   }
